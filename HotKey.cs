@@ -29,6 +29,7 @@ namespace UnManaged
         public KeyModifier KeyModifiers { get; private set; }
         public Action<HotKey> Action { get; private set; }
         public int Id { get; set; }
+        public static KeyModifier HeldKeyModiferKinda = KeyModifier.None;
 
         // ******************************************************************
         public HotKey(Key k, KeyModifier keyModifiers, Action<HotKey> action, bool register = true)

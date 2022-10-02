@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using UnManaged;
+using System.Windows.Forms;
 
 namespace Mousinator5000
 {
@@ -34,6 +35,18 @@ namespace Mousinator5000
         [DllImport("User32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
+        private static bool MSetCursorPos(int X, int Y)
+        {
+            var resolution = Screen.PrimaryScreen.Bounds;
+            Console.WriteLine("Newpos " + X + " " + Y);
+
+            return SetCursorPos(X, Y);
+        }
+
+        private List<int[]> currentZoom = new List<int[]>();
+        private bool rightHand = false;
+
+        private int[] divisions = new[] { 4, 3 };
 
         public static void SetWindowExTransparent(IntPtr hwnd)
         {
@@ -47,11 +60,65 @@ namespace Mousinator5000
             WindowStyle = WindowStyle.None;
             Topmost = true;
             AllowsTransparency = true;
-            Opacity = 0.2;
+            Opacity = 0.7;
             WindowState = WindowState.Maximized;
 
+            foreach (var a in new[] { KeyModifier.Alt, KeyModifier.None})
+            {
+                foreach (var b in new[] { KeyModifier.Shift, KeyModifier.None })
+                {
+                    foreach (var c in new[] { KeyModifier.Ctrl, KeyModifier.None })
+                    {
+                        foreach (var d in new[] { KeyModifier.Win, KeyModifier.None })
+                        {
+                            foreach (var e in new[] {Key.F19, Key.F18 })
+                            {
+                                var result = a | b | c | d;
+                                var _hotKey = new HotKey(e, result, OnHotKeyHandler);
+                            }
+                        }
+                    }
+                }
+            }
+            UpdateZoom();
 
-            var _hotKey = new HotKey(Key.F18, KeyModifier.Shift, OnHotKeyHandler);
+
+            Rectangle rect = new Rectangle();
+            rect.Width = 300;
+            rect.Height = 300;
+
+            var drawing_brush = new DrawingBrush();
+            drawing_brush.TileMode = TileMode.Tile;
+            drawing_brush.Viewport = new Rect(0, 0, 480, 360);
+            drawing_brush.ViewboxUnits = BrushMappingMode.Absolute;
+
+                var drawing = new GeometryDrawing();
+                drawing.Geometry = new RectangleGeometry(new Rect(0,0,480,360));
+                var pen = new Pen();
+                pen.Brush = Brushes.Aqua;
+                pen.Thickness = 1;
+                drawing.Pen = pen;
+
+            drawing_brush.Drawing = drawing;
+            
+            
+            rect.Fill = drawing_brush;
+
+            var o = (DrawingBrush)MyCanvas.Background;
+            var t = (GeometryDrawing) o.Drawing;
+            var th = (RectangleGeometry) t.Geometry;
+            var f = th.Rect;
+            f.Width = 50.0;
+
+            o.Viewport = new Rect(0,0,50,50);
+
+            //MyCanvas.Children.Add(rect);
+            //Canvas.SetTop(rect, 100);
+            //Canvas.SetLeft(rect, 100);
+
+
+
+            
         }
         protected override void OnSourceInitialized(EventArgs e)
         {
@@ -59,10 +126,104 @@ namespace Mousinator5000
             var hwnd = new WindowInteropHelper(this).Handle;
             SetWindowExTransparent(hwnd);
         }
-        private void OnHotKeyHandler(HotKey hotKey)
+        private void UpdateZoom()
+        {
+            var resolution = Screen.PrimaryScreen.Bounds;
+            foreach (int[] coord in currentZoom)
+            {
+                var xDivSize = resolution.Width / divisions[0];
+                var yDivSize = resolution.Height / divisions[1];
+
+                resolution = new System.Drawing.Rectangle(resolution.Left + coord[0] * xDivSize, resolution.Top+coord[1] * yDivSize, xDivSize, yDivSize);
+                
+            }
+            MyCanvas.Children.Clear();
+            var rect = new Rectangle();
+            rect.Width = resolution.Width;
+            rect.Height = resolution.Height;
+            MyCanvas.Children.Add(rect);
+            Canvas.SetTop(rect, resolution.Top);
+            Canvas.SetLeft(rect, resolution.Left);
+
+
+            if(currentZoom.Count > 0)
+            {
+                MSetCursorPos(resolution.Left + resolution.Width / 2, resolution.Top + resolution.Height / 2);
+            }
+        }
+        private void OnGridPressed(int[] coords, bool right)
+        {
+            if (right == rightHand && currentZoom.Count < 6)
+            {
+                currentZoom.Add(coords);
+                UpdateZoom();
+                rightHand = !rightHand;
+            }
+        }
+        private void OnMonitorMove(bool right)
+        {
+
+        }
+        private void OnGoBack()
         {
             
-            SetCursorPos(100, 100);
+        }
+        private void Reset()
+        {
+            currentZoom.Clear();
+            rightHand = false;
+            UpdateZoom();
+        }
+        private void OnHotKeyHandler(HotKey hotKey)
+        {
+            // Order: Shift Ctrl Alt Win
+            var coords = new[] { ModifiersToInt(hotKey.KeyModifiers, KeyModifier.Shift, KeyModifier.Ctrl), ModifiersToInt(hotKey.KeyModifiers, KeyModifier.Alt, KeyModifier.Win) };
+            var rightHand = hotKey.Key == Key.F19;
+            Console.WriteLine("Coords: " + coords);
+            if(coords[1] == 3)
+            {
+                switch (coords[0])
+                {
+                    case 0:
+                        if (rightHand)
+                        {
+                            Reset();
+                        }
+                        else
+                        {
+                            OnGoBack();
+                        }
+                        break;
+                    case 1:
+                        OnMonitorMove(rightHand);
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                OnGridPressed(coords, rightHand);
+            }
+        }
+        private int ModifiersToInt(KeyModifier source, KeyModifier low, KeyModifier hi)
+        {
+            var low_val = source & low;
+            var hi_val = source & hi;
+            int result = 0;
+            if (low_val != 0)
+            {
+                result += 1;
+            }
+            if(hi_val != 0)
+            {
+                result += 2;
+            }
+            return result;
         }
     }
 }
