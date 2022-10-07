@@ -71,7 +71,7 @@ namespace Mousinator5000
                     {
                         foreach (var d in new[] { KeyModifier.Win, KeyModifier.None })
                         {
-                            foreach (var e in new[] {Key.F19, Key.F18 })
+                            foreach (var e in new[] {Key.F13, Key.F17 })
                             {
                                 var result = a | b | c | d;
                                 var _hotKey = new HotKey(e, result, OnHotKeyHandler);
@@ -82,41 +82,9 @@ namespace Mousinator5000
             }
             UpdateZoom();
 
-
-            Rectangle rect = new Rectangle();
-            rect.Width = 300;
-            rect.Height = 300;
-
-            var drawing_brush = new DrawingBrush();
-            drawing_brush.TileMode = TileMode.Tile;
-            drawing_brush.Viewport = new Rect(0, 0, 480, 360);
-            drawing_brush.ViewboxUnits = BrushMappingMode.Absolute;
-
-                var drawing = new GeometryDrawing();
-                drawing.Geometry = new RectangleGeometry(new Rect(0,0,480,360));
-                var pen = new Pen();
-                pen.Brush = Brushes.Aqua;
-                pen.Thickness = 1;
-                drawing.Pen = pen;
-
-            drawing_brush.Drawing = drawing;
             
+
             
-            rect.Fill = drawing_brush;
-
-            var o = (DrawingBrush)MyCanvas.Background;
-            var t = (GeometryDrawing) o.Drawing;
-            var th = (RectangleGeometry) t.Geometry;
-            var f = th.Rect;
-            f.Width = 50.0;
-
-            o.Viewport = new Rect(0,0,50,50);
-
-            //MyCanvas.Children.Add(rect);
-            //Canvas.SetTop(rect, 100);
-            //Canvas.SetLeft(rect, 100);
-
-
 
             
         }
@@ -137,16 +105,24 @@ namespace Mousinator5000
                 resolution = new System.Drawing.Rectangle(resolution.Left + coord[0] * xDivSize, resolution.Top+coord[1] * yDivSize, xDivSize, yDivSize);
                 
             }
-            MyCanvas.Children.Clear();
-            var rect = new Rectangle();
-            rect.Width = resolution.Width;
-            rect.Height = resolution.Height;
-            MyCanvas.Children.Add(rect);
-            Canvas.SetTop(rect, resolution.Top);
-            Canvas.SetLeft(rect, resolution.Left);
+            var xDivSizeNext = resolution.Width / divisions[0];
+            var yDivSizeNext = resolution.Height / divisions[1];
 
+            var o = (DrawingBrush)MyCanvas.Background;
+            var t = (GeometryDrawing)o.Drawing;
+            var th = (RectangleGeometry)t.Geometry;
+            var f = th.Rect;
+            f.Width = xDivSizeNext;
+            f.Height = yDivSizeNext;
 
-            if(currentZoom.Count > 0)
+            o.Viewport = new Rect(0, 0, xDivSizeNext, yDivSizeNext);
+
+            MyCanvas.Width = resolution.Width;
+            MyCanvas.Height = resolution.Height;
+            Canvas.SetTop(MyCanvas, resolution.Top);
+            Canvas.SetLeft(MyCanvas, resolution.Left);
+
+            if (currentZoom.Count > 0)
             {
                 MSetCursorPos(resolution.Left + resolution.Width / 2, resolution.Top + resolution.Height / 2);
             }
@@ -178,7 +154,7 @@ namespace Mousinator5000
         {
             // Order: Shift Ctrl Alt Win
             var coords = new[] { ModifiersToInt(hotKey.KeyModifiers, KeyModifier.Shift, KeyModifier.Ctrl), ModifiersToInt(hotKey.KeyModifiers, KeyModifier.Alt, KeyModifier.Win) };
-            var rightHand = hotKey.Key == Key.F19;
+            var rightHand = hotKey.Key == Key.F17;
             Console.WriteLine("Coords: " + coords);
             if(coords[1] == 3)
             {
