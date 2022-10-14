@@ -17,7 +17,7 @@
                                 <RectangleGeometry Rect="0,0,1920,1080"/>
                             </GeometryDrawing.Geometry>
                             <GeometryDrawing.Pen>
-                                <Pen Brush="BlueViolet" Thickness="7"/>
+                                <Pen Brush="BlueViolet" Thickness="3"/>
                             </GeometryDrawing.Pen>
                         </GeometryDrawing>
                     </DrawingBrush.Drawing>
