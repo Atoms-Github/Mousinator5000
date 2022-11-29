@@ -6,23 +6,28 @@
         xmlns:local="clr-namespace:Mousinator5000"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800" Background="#00000000">
-    <Canvas>
-        <Canvas Name="MyCanvas" >
-            <Canvas.Background>
-                <DrawingBrush TileMode="Tile" Viewport="0,0,1920,1080" 
-                                     ViewportUnits="Absolute">
-                    <DrawingBrush.Drawing>
-                        <GeometryDrawing>
-                            <GeometryDrawing.Geometry>
-                                <RectangleGeometry Rect="0,0,1920,1080"/>
-                            </GeometryDrawing.Geometry>
-                            <GeometryDrawing.Pen>
-                                <Pen Brush="BlueViolet" Thickness="3"/>
-                            </GeometryDrawing.Pen>
-                        </GeometryDrawing>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
-            </Canvas.Background>
-        </Canvas>
-    </Canvas>
+    <Grid Name="MyGrid" ShowGridLines="True">
+          <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+        <ColumnDefinition />
+        <ColumnDefinition />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+      </Grid.RowDefinitions>
+        <TextBlock Text="Game Over!" Foreground="Black" FontWeight="Bold"
+                   FontSize="24"
+                   HorizontalAlignment="Center"
+                   Grid.Column="1"
+                   VerticalAlignment="Center"/>
+        <TextBlock Text="Ter" Grid.Row="1" Foreground="Black" FontWeight="Bold"
+                   FontSize="24"
+                   HorizontalAlignment="Center"
+                   Grid.Column="0"
+                   VerticalAlignment="Center"/>
+
+    </Grid>
 </Window>
